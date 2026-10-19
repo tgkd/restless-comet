@@ -1,0 +1,9 @@
+.claude/notes/
+.claude/duck/
+.claude/worktrees/
+*.xcodeproj/
+build/
+.build/
+.swiftpm/
+xcuserdata/
+.DS_Store

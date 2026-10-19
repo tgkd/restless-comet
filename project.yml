@@ -1,0 +1,36 @@
+name: RestlessComet
+options:
+  bundleIdPrefix: com.restlesscomet
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  RestlessCore:
+    path: Packages/RestlessCore
+targets:
+  RestlessComet:
+    type: application
+    platform: macOS
+    sources:
+      - path: App/Sources
+    dependencies:
+      - package: RestlessCore
+    scheme: {}
+    settings:
+      base:
+        PRODUCT_NAME: Restless Comet
+        PRODUCT_MODULE_NAME: RestlessComet
+        PRODUCT_BUNDLE_IDENTIFIER: com.restlesscomet.app
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        ENABLE_HARDENED_RUNTIME: NO
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        SWIFT_APPROACHABLE_CONCURRENCY: YES
+        SWIFT_STRICT_CONCURRENCY: complete
