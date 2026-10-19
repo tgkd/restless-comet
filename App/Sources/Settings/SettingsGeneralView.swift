@@ -67,7 +67,6 @@ struct SettingsGeneralView: View {
                 Text("Launch at login")
                 Text(SettingsStatusText.launchAtLoginCaption(model.launchAtLoginStatus))
             }
-            .disabled(model.launchAtLoginStatus == .unavailable)
             if model.launchAtLoginStatus == .requiresApproval {
                 LabeledContent {
                     Button("Open Login Items…") {

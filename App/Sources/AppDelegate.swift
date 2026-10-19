@@ -3,7 +3,6 @@ import RestlessCore
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let selfBundleID = Bundle.main.bundleIdentifier ?? "com.restlesscomet.app"
-    private var launchedAsLoginItem = false
 
     private lazy var configStore = ConfigStore(
         fileURL: ConfigLocation.fileURL(bundleID: selfBundleID),
@@ -31,13 +30,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     })
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-        launchedAsLoginItem = LaunchReason.isLoginItemLaunch()
         configStore.load()
         intake.install()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        if !launchedAsLoginItem && !intake.hasReceivedRequests {
+        if !LaunchReason.isLoginItemLaunch() && !intake.hasReceivedRequests {
             showSettings()
         }
     }
