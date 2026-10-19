@@ -98,7 +98,7 @@ struct SettingsRuleEditor: View {
 
     private var domainsSection: some View {
         Section {
-            TextField("Domains", text: $domainsText, prompt: Text("example.com, https://example.org/page"), axis: .vertical)
+            TextField("Domains", text: $domainsText, prompt: Text(verbatim: "example.com, https://example.org/page"), axis: .vertical)
                 .labelsHidden()
                 .lineLimit(1...4)
             ForEach(entries) { entry in

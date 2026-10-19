@@ -52,7 +52,7 @@ enum SettingsAppDirectory {
         if let url = applicationURL(for: bundleID) {
             icon = resized(NSWorkspace.shared.icon(forFile: url.path(percentEncoded: false)))
         } else {
-            icon = resized(NSWorkspace.shared.icon(for: .application))
+            icon = resized(NSWorkspace.shared.icon(for: .applicationBundle))
         }
         iconsByBundleID[bundleID] = icon
         return icon
