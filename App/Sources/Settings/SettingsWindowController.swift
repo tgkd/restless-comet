@@ -34,6 +34,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             window.center()
             hasBeenShown = true
         }
+        if window.isMiniaturized {
+            window.deminiaturize(nil)
+        }
         window.makeKeyAndOrderFront(nil)
     }
 
