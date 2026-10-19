@@ -81,7 +81,7 @@ final class PickerPanelController: PickerPresenting {
 
     private var hasOtherVisibleWindow: Bool {
         NSApp.windows.contains { window in
-            window !== panel && window.isVisible && window.styleMask.contains(.titled)
+            window !== panel && window.styleMask.contains(.titled) && (window.isVisible || window.isMiniaturized)
         }
     }
 
