@@ -1,0 +1,36 @@
+# Restless Comet
+
+A native macOS link router: a simplified Velja. It registers as the default http/https handler. Each clicked link goes to a browser by rule, or through a small picker panel at the pointer. It is an agent app (`LSUIElement`), not sandboxed, and ad-hoc signed for local use. The v1 scope and its reasoning are in `.claude/notes/decisions/`.
+
+## Architecture
+- **`Packages/RestlessCore`** holds Foundation-only logic. It has no AppKit and is tested with Swift Testing:
+  - models and the on-disk config schema (`Models.swift`);
+  - the ports the app implements (`Ports.swift`);
+  - routing (`Router`, `HostMatcher`);
+  - config loading and validation (`ConfigStore`, `ConfigValidator`);
+  - the request queue (`RequestCoordinator`).
+  Behaviour belongs here whenever it can be tested without a window server.
+- **`App/Sources`** is the AppKit shell:
+  - `AppDelegate` is the only place that wires objects together.
+  - `Services/` covers Apple Event intake, browser discovery and opening, default-browser and login-item status, and the `AppModel` facade.
+  - `Picker/` is the non-activating panel.
+  - `Settings/` is the tabbed settings window.
+  The app target uses default `MainActor` isolation. Core types declare their isolation explicitly.
+- **Link flow:** Apple Event, then `URLIntake`, then an immutable `LinkRequest`, then `RequestCoordinator`, then `Router`. The router either opens the link directly or queues it for the picker. A failed or missing target always returns the link to the picker, never drops it.
+
+## Config file
+- **Location:** `Application Support/<bundle id>/config.json`; the path is built in `App/Sources/Shared/ConfigLocation.swift`, and the schema is in `Models.swift`.
+- **Hand edits are expected:** agents may add rules directly. The app picks up changes on the next link.
+- **Field meanings:**
+  - `defaultBrowser: null` means "show the picker".
+  - Rules are checked top to bottom. Within a rule, `domains` and `sourceApps` must both match when both are set, and subdomains match automatically.
+- **Invalid files are never overwritten:** the app keeps the last good config in memory and shows the error in Settings.
+
+## Workflow
+- `scripts/check.sh core|app|all` runs the package tests and/or regenerates the Xcode project with xcodegen and builds it into `build/DerivedData`. The `.xcodeproj` is generated, so edit `project.yml` instead.
+- Diagnostics: turn on the Diagnostics toggle (`config.diagnostics`), then run `log stream --level debug --predicate 'subsystem == "<bundle id>"'`. The bundle id is in `project.yml`. Normal logs carry only request ids and outcomes.
+
+## Gotchas
+- LaunchServices refuses to launch apps that live in temp dirs. Every build also registers another copy of the bundle id, so stale copies must be unregistered before relying on the default-browser association. See `.claude/notes/patterns-found/launchservices.md`.
+- Source-app detection uses the GURL event's sender pid. It is unknown for CLI openers, and the frontmost app is not a valid fallback. See `.claude/notes/patterns-found/apple-events-intake.md`.
+- Swift 6.4 with default MainActor isolation has a few AppKit/SwiftUI traps. See `.claude/notes/patterns-found/swift-default-mainactor.md`.
