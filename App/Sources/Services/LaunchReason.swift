@@ -11,4 +11,8 @@ enum LaunchReason {
         let launchKind = event.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue
         return launchKind == OSType(keyAELaunchedAsLogInItem)
     }
+
+    static func isQuietLaunchRequested() -> Bool {
+        ProcessInfo.processInfo.arguments.contains("--quiet")
+    }
 }

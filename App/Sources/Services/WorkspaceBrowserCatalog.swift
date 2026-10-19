@@ -2,7 +2,10 @@ import AppKit
 import RestlessCore
 
 final class WorkspaceBrowserCatalog: BrowserCataloging {
+    private static let familyKey = "RestlessCometAppFamily"
+
     private let selfBundleID: String
+    private let ownFamily = Bundle.main.object(forInfoDictionaryKey: familyKey) as? String
 
     init(selfBundleID: String) {
         self.selfBundleID = selfBundleID
@@ -16,7 +19,11 @@ final class WorkspaceBrowserCatalog: BrowserCataloging {
         var seenBundleIDs: Set<String> = []
         var browsers: [BrowserApp] = []
         for candidateURL in workspace.urlsForApplications(toOpen: probeURL) {
-            guard let bundleID = Bundle(url: candidateURL)?.bundleIdentifier, !isSelf(bundleID) else {
+            guard let bundle = Bundle(url: candidateURL),
+                  let bundleID = bundle.bundleIdentifier,
+                  !isSelf(bundleID),
+                  !isOwnFamily(bundle)
+            else {
                 continue
             }
             guard seenBundleIDs.insert(bundleID.lowercased()).inserted else {
@@ -35,11 +42,21 @@ final class WorkspaceBrowserCatalog: BrowserCataloging {
         guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
             return nil
         }
+        guard !isOwnFamily(Bundle(url: appURL)) else {
+            return nil
+        }
         return makeBrowser(bundleID: bundleID, appURL: appURL)
     }
 
     private func isSelf(_ bundleID: String) -> Bool {
         bundleID.caseInsensitiveCompare(selfBundleID) == .orderedSame
+    }
+
+    private func isOwnFamily(_ bundle: Bundle?) -> Bool {
+        guard let ownFamily, let family = bundle?.object(forInfoDictionaryKey: Self.familyKey) as? String else {
+            return false
+        }
+        return family == ownFamily
     }
 
     private func makeBrowser(bundleID: String, appURL: URL) -> BrowserApp {

@@ -10,8 +10,6 @@ app() {
   xcodegen generate --spec project.yml --quiet
   xcodebuild -project RestlessComet.xcodeproj -scheme RestlessComet -configuration Debug \
     -destination 'platform=macOS,arch=arm64' -derivedDataPath build/DerivedData -quiet build
-  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-    -u "build/DerivedData/Build/Products/Debug/Restless Comet.app"
 }
 
 case "${1:-all}" in

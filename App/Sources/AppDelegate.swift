@@ -28,6 +28,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var intake = URLIntake(onRequest: { [weak self] request in
         self?.coordinator.handle(request)
     })
+    private lazy var statusItem = StatusItemController(openSettings: { [weak self] in
+        self?.showSettings()
+    })
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         configStore.load()
@@ -35,7 +38,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        if !LaunchReason.isLoginItemLaunch() && !intake.hasReceivedRequests {
+        statusItem.install()
+        if !LaunchReason.isLoginItemLaunch() && !LaunchReason.isQuietLaunchRequested() && !intake.hasReceivedRequests {
             showSettings()
         }
     }
