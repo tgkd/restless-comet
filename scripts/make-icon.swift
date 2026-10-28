@@ -5,13 +5,11 @@ enum Variant: String, CaseIterable {
     case development = "AppIconDev"
 }
 
+let symbolName = "arrow.triangle.branch"
+
 struct Palette {
     let background: CGColor
-    let star: CGColor
-    let halo: CGColor
-    let head: CGColor
-    let tail: CGColor
-    let sideTail: CGColor
+    let band: CGColor
 }
 
 func srgb(_ hex: UInt32, alpha: CGFloat = 1) -> CGColor {
@@ -26,65 +24,21 @@ func srgb(_ hex: UInt32, alpha: CGFloat = 1) -> CGColor {
 func palette(for variant: Variant) -> Palette {
     switch variant {
     case .release:
-        return Palette(
-            background: srgb(0x111733),
-            star: srgb(0xFFFFFF, alpha: 0.55),
-            halo: srgb(0xFF8A3D, alpha: 0.2),
-            head: srgb(0xFFF6E8),
-            tail: srgb(0xFF8A3D),
-            sideTail: srgb(0xFFB870)
-        )
+        return Palette(background: srgb(0x2F6FED), band: srgb(0x1D4FB8))
     case .development:
-        return Palette(
-            background: srgb(0x23262B),
-            star: srgb(0xFFFFFF, alpha: 0.4),
-            halo: srgb(0x35C08A, alpha: 0.2),
-            head: srgb(0xF2FFF8),
-            tail: srgb(0x35C08A),
-            sideTail: srgb(0x8BDDB8)
-        )
+        return Palette(background: srgb(0x2E9E6E), band: srgb(0x1F7451))
     }
 }
 
-let stars: [(CGPoint, CGFloat)] = [
-    (CGPoint(x: 182, y: 842), 9),
-    (CGPoint(x: 318, y: 742), 6),
-    (CGPoint(x: 846, y: 312), 8),
-    (CGPoint(x: 902, y: 846), 6),
-    (CGPoint(x: 492, y: 912), 5),
-    (CGPoint(x: 744, y: 158), 5),
-    (CGPoint(x: 112, y: 512), 5),
-]
-
-func rotated(_ point: CGPoint, around center: CGPoint, degrees: CGFloat, scale: CGFloat) -> CGPoint {
-    let radians = degrees * .pi / 180
-    let dx = (point.x - center.x) * scale
-    let dy = (point.y - center.y) * scale
-    return CGPoint(
-        x: center.x + dx * cos(radians) - dy * sin(radians),
-        y: center.y + dx * sin(radians) + dy * cos(radians)
-    )
-}
-
-func fillStreak(_ context: CGContext, from head: CGPoint, to tip: CGPoint, halfWidth: CGFloat, color: CGColor) {
-    let dx = tip.x - head.x
-    let dy = tip.y - head.y
-    let length = (dx * dx + dy * dy).squareRoot()
-    let offsetX = -dy / length * halfWidth
-    let offsetY = dx / length * halfWidth
-    let bend = CGPoint(x: (head.x + tip.x) / 2 + offsetY * 0.35, y: (head.y + tip.y) / 2 - offsetX * 0.35)
-    context.beginPath()
-    context.move(to: CGPoint(x: head.x + offsetX, y: head.y + offsetY))
-    context.addQuadCurve(to: tip, control: CGPoint(x: bend.x + offsetX * 0.5, y: bend.y + offsetY * 0.5))
-    context.addQuadCurve(to: CGPoint(x: head.x - offsetX, y: head.y - offsetY), control: CGPoint(x: bend.x - offsetX * 0.5, y: bend.y - offsetY * 0.5))
-    context.closePath()
-    context.setFillColor(color)
-    context.fillPath()
-}
-
-func fillCircle(_ context: CGContext, center: CGPoint, radius: CGFloat, color: CGColor) {
-    context.setFillColor(color)
-    context.fillEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+func drawSymbol(centeredAt center: CGPoint, pointSize: CGFloat) {
+    let configuration = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold)
+        .applying(NSImage.SymbolConfiguration(paletteColors: [.white]))
+    guard let symbol = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
+        .withSymbolConfiguration(configuration) else {
+        fatalError("missing symbol \(symbolName)")
+    }
+    let size = symbol.size
+    symbol.draw(in: NSRect(x: center.x - size.width / 2, y: center.y - size.height / 2, width: size.width, height: size.height))
 }
 
 func drawDevelopmentBand(_ context: CGContext, color: CGColor) {
@@ -106,18 +60,11 @@ func drawIcon(_ context: CGContext, variant: Variant) {
     let colors = palette(for: variant)
     context.setFillColor(colors.background)
     context.fill(CGRect(x: 0, y: 0, width: 1024, height: 1024))
-    for (center, radius) in stars {
-        fillCircle(context, center: center, radius: radius, color: colors.star)
-    }
-    let head = CGPoint(x: 650, y: 650)
-    let tip = CGPoint(x: 168, y: 168)
-    fillCircle(context, center: head, radius: 168, color: colors.halo)
-    fillStreak(context, from: head, to: rotated(tip, around: head, degrees: 17, scale: 0.72), halfWidth: 58, color: colors.sideTail)
-    fillStreak(context, from: head, to: rotated(tip, around: head, degrees: -17, scale: 0.72), halfWidth: 58, color: colors.sideTail)
-    fillStreak(context, from: head, to: tip, halfWidth: 112, color: colors.tail)
-    fillCircle(context, center: head, radius: 118, color: colors.head)
     if variant == .development {
-        drawDevelopmentBand(context, color: colors.tail)
+        drawSymbol(centeredAt: CGPoint(x: 512, y: 600), pointSize: 420)
+        drawDevelopmentBand(context, color: colors.band)
+    } else {
+        drawSymbol(centeredAt: CGPoint(x: 512, y: 512), pointSize: 480)
     }
 }
 

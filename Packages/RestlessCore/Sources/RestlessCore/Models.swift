@@ -67,6 +67,7 @@ public struct Config: Codable, Sendable, Equatable {
     public var shownBrowsers: [String]
     public var rules: [Rule]
     public var diagnostics: Bool
+    public var showMenuBarIcon: Bool
 
     public init(
         schemaVersion: Int = Config.currentSchemaVersion,
@@ -74,7 +75,8 @@ public struct Config: Codable, Sendable, Equatable {
         alternativeBrowser: String? = nil,
         shownBrowsers: [String] = [],
         rules: [Rule] = [],
-        diagnostics: Bool = false
+        diagnostics: Bool = false,
+        showMenuBarIcon: Bool = true
     ) {
         self.schemaVersion = schemaVersion
         self.defaultBrowser = defaultBrowser
@@ -82,10 +84,11 @@ public struct Config: Codable, Sendable, Equatable {
         self.shownBrowsers = shownBrowsers
         self.rules = rules
         self.diagnostics = diagnostics
+        self.showMenuBarIcon = showMenuBarIcon
     }
 
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, defaultBrowser, alternativeBrowser, shownBrowsers, rules, diagnostics
+        case schemaVersion, defaultBrowser, alternativeBrowser, shownBrowsers, rules, diagnostics, showMenuBarIcon
     }
 
     public init(from decoder: any Decoder) throws {
@@ -96,6 +99,7 @@ public struct Config: Codable, Sendable, Equatable {
         shownBrowsers = try container.decodeIfPresent([String].self, forKey: .shownBrowsers) ?? []
         rules = try container.decodeIfPresent([Rule].self, forKey: .rules) ?? []
         diagnostics = try container.decodeIfPresent(Bool.self, forKey: .diagnostics) ?? false
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -106,6 +110,7 @@ public struct Config: Codable, Sendable, Equatable {
         try container.encode(shownBrowsers, forKey: .shownBrowsers)
         try container.encode(rules, forKey: .rules)
         try container.encode(diagnostics, forKey: .diagnostics)
+        try container.encode(showMenuBarIcon, forKey: .showMenuBarIcon)
     }
 }
 

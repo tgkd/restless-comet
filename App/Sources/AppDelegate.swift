@@ -28,9 +28,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var intake = URLIntake(onRequest: { [weak self] request in
         self?.coordinator.handle(request)
     })
-    private lazy var statusItem = StatusItemController(openSettings: { [weak self] in
-        self?.showSettings()
-    })
+    private lazy var statusItem = StatusItemController(
+        isShown: { [configStore] in
+            configStore.config?.showMenuBarIcon ?? true
+        },
+        openSettings: { [weak self] in
+            self?.showSettings()
+        }
+    )
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         configStore.load()

@@ -8,20 +8,28 @@ struct PickerChoiceCell: View {
 
     var body: some View {
         Button(action: onChoose) {
-            VStack(spacing: PickerMetrics.labelSpacing) {
-                Text(item.shortcutLabel)
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
-                    .frame(height: PickerMetrics.labelHeight)
+            VStack(spacing: PickerMetrics.nameSpacing) {
                 Image(nsImage: item.icon)
                     .resizable()
                     .interpolation(.high)
                     .frame(width: PickerMetrics.iconSize, height: PickerMetrics.iconSize)
-                    .padding(PickerMetrics.iconPadding)
-                    .background {
-                        RoundedRectangle(cornerRadius: PickerMetrics.highlightCornerRadius, style: .continuous)
-                            .fill(isHighlighted ? Color.accentColor : Color.clear)
-                    }
+                Text(item.browser.name)
+                    .font(.caption)
+                    .foregroundStyle(isHighlighted ? .primary : .secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+            .padding(.vertical, PickerMetrics.cellVerticalPadding)
+            .frame(width: PickerMetrics.cellWidth)
+            .background {
+                RoundedRectangle(cornerRadius: PickerMetrics.highlightCornerRadius, style: .continuous)
+                    .fill(isHighlighted ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear))
+            }
+            .overlay(alignment: .topLeading) {
+                if !item.shortcutLabel.isEmpty {
+                    PickerKeycap(label: item.shortcutLabel)
+                        .padding(PickerMetrics.keycapInset)
+                }
             }
             .contentShape(Rectangle())
         }

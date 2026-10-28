@@ -5,6 +5,8 @@ import RestlessCore
 @Observable
 final class PickerViewModel {
     private(set) var items: [PickerChoiceItem] = []
+    private(set) var hostText = ""
+    private(set) var urlText = ""
     private(set) var noticeText: String?
     private(set) var pendingCount = 0
     private(set) var highlightedIndex: Int?
@@ -13,6 +15,9 @@ final class PickerViewModel {
         items = presentation.choices.enumerated().map { entry in
             PickerChoiceItem(index: entry.offset, browser: entry.element, icon: entry.element.icon)
         }
+        let url = presentation.request.url
+        hostText = url.host(percentEncoded: false) ?? url.absoluteString
+        urlText = url.absoluteString
         noticeText = Self.noticeText(for: presentation.notice, choices: presentation.choices)
         pendingCount = presentation.pendingCount
         highlightedIndex = items.isEmpty ? nil : 0

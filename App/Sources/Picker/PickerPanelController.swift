@@ -3,7 +3,7 @@ import RestlessCore
 import SwiftUI
 
 final class PickerPanelController: PickerPresenting {
-    private static let menuURLTitleLimit = 160
+    private static let menuURLTitleLimit = 72
 
     private let openSettings: () -> Void
     private let model = PickerViewModel()

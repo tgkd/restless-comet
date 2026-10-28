@@ -11,6 +11,7 @@ struct SettingsGeneralView: View {
             SettingsErrorBanner(model: model)
             defaultBrowserSection
             launchAtLoginSection
+            menuBarSection
             settingsFileSection
             diagnosticsSection
             quitSection
@@ -87,6 +88,16 @@ struct SettingsGeneralView: View {
                 model.setLaunchAtLogin(isOn)
             }
         )
+    }
+
+    private var menuBarSection: some View {
+        Section {
+            Toggle(isOn: SettingsConfigAccess.binding(model, \.showMenuBarIcon, fallback: true)) {
+                Text("Show menu bar icon")
+                Text("When hidden, open Restless Comet again to show this window.")
+            }
+        }
+        .disabled(!SettingsConfigAccess.isEditable(model.configStore))
     }
 
     private var settingsFileSection: some View {

@@ -25,6 +25,18 @@ struct ContractTests {
         #expect(rule.sourceApps.isEmpty)
     }
 
+    @Test func menuBarIconIsShownWhenTheKeyIsMissing() throws {
+        let json = #"{"schemaVersion":1}"#
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        #expect(config.showMenuBarIcon)
+    }
+
+    @Test func hiddenMenuBarIconRoundTrips() throws {
+        let hidden = Config(showMenuBarIcon: false)
+        let data = try JSONEncoder().encode(hidden)
+        #expect(try JSONDecoder().decode(Config.self, from: data) == hidden)
+    }
+
     @Test func configRequiresSchemaVersion() {
         let json = #"{"rules":[]}"#
         #expect(throws: DecodingError.self) {

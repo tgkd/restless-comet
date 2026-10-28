@@ -20,7 +20,6 @@ final class PickerPanel: NSPanel {
         isOpaque = false
         backgroundColor = .clear
         hasShadow = true
-        appearance = NSAppearance(named: .darkAqua)
         contentView = Self.makeBackground(containing: content)
     }
 
@@ -49,7 +48,7 @@ final class PickerPanel: NSPanel {
 
     private static func makeBackground(containing content: NSView) -> NSView {
         let background = NSVisualEffectView()
-        background.material = .hudWindow
+        background.material = .popover
         background.blendingMode = .behindWindow
         background.state = .active
         background.maskImage = roundedMask(radius: PickerMetrics.panelCornerRadius)

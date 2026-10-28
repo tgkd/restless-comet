@@ -7,7 +7,8 @@ struct PickerPendingBadge: View {
         if pendingCount > 1 {
             Text(verbatim: "+\(pendingCount - 1)")
                 .font(.caption2.weight(.semibold).monospacedDigit())
-                .padding(.horizontal, 5)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 6)
                 .padding(.vertical, 1)
                 .background(.quaternary, in: Capsule())
                 .help("Links waiting after this one")

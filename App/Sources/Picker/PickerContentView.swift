@@ -6,11 +6,15 @@ struct PickerContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: PickerMetrics.rowSpacing) {
+            header
             if let noticeText = model.noticeText {
-                Text(noticeText)
+                Label(noticeText, systemImage: "exclamationmark.triangle.fill")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: PickerMetrics.headerMaxTextWidth, alignment: .leading)
+                    .padding(.horizontal, PickerMetrics.headerSpacing)
             }
             if model.items.isEmpty {
                 fallbackRow
@@ -20,11 +24,31 @@ struct PickerContentView: View {
         }
         .padding(PickerMetrics.contentPadding)
         .fixedSize()
+        .overlay {
+            RoundedRectangle(cornerRadius: PickerMetrics.panelCornerRadius, style: .continuous)
+                .strokeBorder(.separator, lineWidth: 1)
+        }
         .focusEffectDisabled()
     }
 
+    private var header: some View {
+        HStack(spacing: PickerMetrics.headerSpacing) {
+            Text(model.hostText)
+                .font(.callout.weight(.medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: PickerMetrics.headerMaxTextWidth, alignment: .leading)
+                .help(model.urlText)
+            Spacer(minLength: 0)
+            PickerPendingBadge(pendingCount: model.pendingCount)
+            PickerMoreButton(action: actions.showMenu)
+        }
+        .padding(.leading, PickerMetrics.headerSpacing)
+    }
+
     private var choicesRow: some View {
-        HStack(alignment: .top, spacing: PickerMetrics.cellSpacing) {
+        HStack(spacing: PickerMetrics.cellSpacing) {
             ForEach(model.items) { item in
                 PickerChoiceCell(
                     item: item,
@@ -33,21 +57,12 @@ struct PickerContentView: View {
                     onChoose: { actions.choose(item.index) }
                 )
             }
-            VStack(spacing: PickerMetrics.labelSpacing) {
-                PickerPendingBadge(pendingCount: model.pendingCount)
-                    .frame(height: PickerMetrics.labelHeight)
-                PickerMoreButton(action: actions.showMenu)
-                    .frame(height: PickerMetrics.iconBoxSize)
-            }
-            .frame(minWidth: PickerMetrics.trailingColumnMinWidth)
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var fallbackRow: some View {
-        HStack(spacing: PickerMetrics.rowSpacing) {
-            Button("Copy", action: actions.copy)
-            PickerPendingBadge(pendingCount: model.pendingCount)
-            PickerMoreButton(action: actions.showMenu)
-        }
+        Button("Copy Link", action: actions.copy)
+            .frame(maxWidth: .infinity)
     }
 }

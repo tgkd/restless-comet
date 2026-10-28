@@ -1,15 +1,33 @@
 import AppKit
+import Observation
 
 final class StatusItemController: NSObject {
+    private let isShown: () -> Bool
     private let openSettings: () -> Void
     private var statusItem: NSStatusItem?
 
-    init(openSettings: @escaping () -> Void) {
+    init(isShown: @escaping () -> Bool, openSettings: @escaping () -> Void) {
+        self.isShown = isShown
         self.openSettings = openSettings
         super.init()
     }
 
     func install() {
+        let shouldShow = withObservationTracking {
+            isShown()
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.install()
+            }
+        }
+        if shouldShow {
+            showItem()
+        } else {
+            removeItem()
+        }
+    }
+
+    private func showItem() {
         guard statusItem == nil else {
             return
         }
@@ -18,6 +36,14 @@ final class StatusItemController: NSObject {
         item.button?.toolTip = Self.appName
         item.menu = makeMenu()
         statusItem = item
+    }
+
+    private func removeItem() {
+        guard let statusItem else {
+            return
+        }
+        NSStatusBar.system.removeStatusItem(statusItem)
+        self.statusItem = nil
     }
 
     private static var appName: String {

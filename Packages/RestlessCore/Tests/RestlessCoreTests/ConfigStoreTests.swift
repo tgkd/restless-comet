@@ -280,7 +280,8 @@ final class ConfigStoreTests {
         #expect(text.hasSuffix("}\n"))
 
         let topLevelKeys = [
-            "alternativeBrowser", "defaultBrowser", "diagnostics", "rules", "schemaVersion", "shownBrowsers",
+            "alternativeBrowser", "defaultBrowser", "diagnostics", "rules", "schemaVersion", "showMenuBarIcon",
+            "shownBrowsers",
         ]
         let offsets = topLevelKeys.compactMap { text.range(of: "\"\($0)\"")?.lowerBound }
         #expect(offsets.count == topLevelKeys.count)
