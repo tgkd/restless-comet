@@ -2,6 +2,7 @@ import CoreGraphics
 
 enum PickerMetrics {
     static let iconSize: CGFloat = 48
+    static let copySymbolSize: CGFloat = 24
     static let cellWidth: CGFloat = 88
     static let cellVerticalPadding: CGFloat = 8
     static let cellSpacing: CGFloat = 2
@@ -14,6 +15,6 @@ enum PickerMetrics {
     static let headerMaxTextWidth: CGFloat = 280
     static let rowSpacing: CGFloat = 6
     static let contentPadding: CGFloat = 8
-    static let moreButtonSize: CGFloat = 22
+    static let settingsButtonSize: CGFloat = 22
     static let panelCornerRadius: CGFloat = 14
 }

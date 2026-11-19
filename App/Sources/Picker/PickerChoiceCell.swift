@@ -9,11 +9,19 @@ struct PickerChoiceCell: View {
     var body: some View {
         Button(action: onChoose) {
             VStack(spacing: PickerMetrics.nameSpacing) {
-                Image(nsImage: item.icon)
-                    .resizable()
-                    .interpolation(.high)
-                    .frame(width: PickerMetrics.iconSize, height: PickerMetrics.iconSize)
-                Text(item.browser.name)
+                Group {
+                    if let icon = item.icon {
+                        Image(nsImage: icon)
+                            .resizable()
+                            .interpolation(.high)
+                    } else {
+                        Image(systemName: "doc.on.doc")
+                            .font(.system(size: PickerMetrics.copySymbolSize, weight: .medium))
+                            .foregroundStyle(isHighlighted ? .primary : .secondary)
+                    }
+                }
+                .frame(width: PickerMetrics.iconSize, height: PickerMetrics.iconSize)
+                Text(item.title)
                     .font(.caption)
                     .foregroundStyle(isHighlighted ? .primary : .secondary)
                     .lineLimit(1)
@@ -34,8 +42,8 @@ struct PickerChoiceCell: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(item.browser.name)
-        .accessibilityLabel(item.browser.name)
+        .help(item.action == .copy ? "Copy Link (⌘C)" : item.title)
+        .accessibilityLabel(item.title)
         .onContinuousHover { phase in
             if case .active = phase {
                 onHover()

@@ -13,14 +13,20 @@ final class PickerViewModel {
 
     func present(_ presentation: PickerPresentation) {
         items = presentation.choices.enumerated().map { entry in
-            PickerChoiceItem(index: entry.offset, browser: entry.element, icon: entry.element.icon)
+            PickerChoiceItem(
+                index: entry.offset,
+                action: .open(bundleID: entry.element.bundleID),
+                title: entry.element.name,
+                icon: entry.element.icon
+            )
         }
+        items.append(PickerChoiceItem(index: items.count, action: .copy, title: "Copy", icon: nil))
         let url = presentation.request.url
         hostText = url.host(percentEncoded: false) ?? url.absoluteString
         urlText = url.absoluteString
         noticeText = Self.noticeText(for: presentation.notice, choices: presentation.choices)
         pendingCount = presentation.pendingCount
-        highlightedIndex = items.isEmpty ? nil : 0
+        highlightedIndex = 0
     }
 
     func updatePendingCount(_ count: Int) {

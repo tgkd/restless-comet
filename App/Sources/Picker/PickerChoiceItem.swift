@@ -1,13 +1,18 @@
 import AppKit
-import RestlessCore
 
 struct PickerChoiceItem: Identifiable {
-    let index: Int
-    let browser: BrowserApp
-    let icon: NSImage
+    enum Action: Hashable {
+        case open(bundleID: String)
+        case copy
+    }
 
-    var id: Int {
-        index
+    let index: Int
+    let action: Action
+    let title: String
+    let icon: NSImage?
+
+    var id: Action {
+        action
     }
 
     var shortcutLabel: String {

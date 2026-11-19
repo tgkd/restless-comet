@@ -16,11 +16,7 @@ struct PickerContentView: View {
                     .frame(maxWidth: PickerMetrics.headerMaxTextWidth, alignment: .leading)
                     .padding(.horizontal, PickerMetrics.headerSpacing)
             }
-            if model.items.isEmpty {
-                fallbackRow
-            } else {
-                choicesRow
-            }
+            choicesRow
         }
         .padding(PickerMetrics.contentPadding)
         .fixedSize()
@@ -42,7 +38,12 @@ struct PickerContentView: View {
                 .help(model.urlText)
             Spacer(minLength: 0)
             PickerPendingBadge(pendingCount: model.pendingCount)
-            PickerMoreButton(action: actions.showMenu)
+            if model.pendingCount > 1 {
+                Button("Cancel All", action: actions.cancelAll)
+                    .font(.caption)
+                    .buttonStyle(.borderless)
+            }
+            PickerSettingsButton(action: actions.openSettings)
         }
         .padding(.leading, PickerMetrics.headerSpacing)
     }
@@ -59,10 +60,5 @@ struct PickerContentView: View {
             }
         }
         .frame(maxWidth: .infinity)
-    }
-
-    private var fallbackRow: some View {
-        Button("Copy Link", action: actions.copy)
-            .frame(maxWidth: .infinity)
     }
 }

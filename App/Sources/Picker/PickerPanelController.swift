@@ -3,8 +3,6 @@ import RestlessCore
 import SwiftUI
 
 final class PickerPanelController: PickerPresenting {
-    private static let menuURLTitleLimit = 72
-
     private let openSettings: () -> Void
     private let model = PickerViewModel()
     private lazy var hostingView = PickerHostingView(
@@ -93,11 +91,11 @@ final class PickerPanelController: PickerPresenting {
             hover: { [weak self] index in
                 self?.hover(at: index)
             },
-            copy: { [weak self] in
-                self?.copyURL()
+            cancelAll: { [weak self] in
+                self?.deliver(.cancelAll)
             },
-            showMenu: { [weak self] in
-                self?.showMenu()
+            openSettings: { [weak self] in
+                self?.openPickerSettings()
             }
         )
     }
@@ -112,10 +110,15 @@ final class PickerPanelController: PickerPresenting {
     }
 
     private func choose(at index: Int) {
-        guard isAwaitingOutcome, let presentation, presentation.choices.indices.contains(index) else {
+        guard isAwaitingOutcome, model.items.indices.contains(index) else {
             return
         }
-        deliver(.chose(bundleID: presentation.choices[index].bundleID))
+        switch model.items[index].action {
+        case .open(let bundleID):
+            deliver(.chose(bundleID: bundleID))
+        case .copy:
+            copyURL()
+        }
     }
 
     private func chooseHighlighted() {
@@ -155,7 +158,7 @@ final class PickerPanelController: PickerPresenting {
         model.moveHighlight(by: offset)
     }
 
-    private func openSettingsFromMenu() {
+    private func openPickerSettings() {
         guard isAwaitingOutcome else {
             return
         }
@@ -179,34 +182,6 @@ final class PickerPanelController: PickerPresenting {
             moveHighlight(by: offset)
         }
         return true
-    }
-
-    private func showMenu() {
-        guard isAwaitingOutcome, let presentation else {
-            return
-        }
-        let url = presentation.request.url
-        let menu = NSMenu()
-        menu.autoenablesItems = false
-        let urlItem = NSMenuItem(title: Self.menuTitle(for: url), action: nil, keyEquivalent: "")
-        urlItem.isEnabled = false
-        urlItem.toolTip = url.absoluteString
-        menu.addItem(urlItem)
-        menu.addItem(.separator())
-        menu.addItem(PickerMenuAction.item(title: "Copy", keyEquivalent: "c") { [weak self] in
-            self?.copyURL()
-        })
-        menu.addItem(PickerMenuAction.item(title: "Settings…") { [weak self] in
-            self?.openSettingsFromMenu()
-        })
-        if model.pendingCount > 1 {
-            menu.addItem(.separator())
-            menu.addItem(PickerMenuAction.item(title: "Cancel All") { [weak self] in
-                self?.deliver(.cancelAll)
-            })
-        }
-        let location = hostingView.convert(panel.mouseLocationOutsideOfEventStream, from: nil)
-        _ = menu.popUp(positioning: nil, at: location, in: hostingView)
     }
 
     private func installOutsideClickMonitor() {
@@ -258,15 +233,5 @@ final class PickerPanelController: PickerPresenting {
             return
         }
         NSApp.hide(nil)
-    }
-
-    private static func menuTitle(for url: URL) -> String {
-        let text = url.absoluteString
-        guard text.count > menuURLTitleLimit else {
-            return text
-        }
-        let headLength = menuURLTitleLimit * 2 / 3
-        let tailLength = menuURLTitleLimit - headLength - 1
-        return "\(text.prefix(headLength))…\(text.suffix(tailLength))"
     }
 }
